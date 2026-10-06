@@ -1,0 +1,33 @@
+name: Alerta
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notificar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Ejecutar Hola Mundo
+        run: node index.js
+
+      - name: Notificar exito
+        run: |
+          curl -H "Tags: github" -d "¡Nuevo commit en la rama main! Despliegue y prueba de Hola Mundo completados con éxito." https://ntfy.sh/devops-itla
+
+      - name: Notificar push
+        env:
+          REPO: ${{ github.event.repository.name }}
+          ACTOR: ${{ github.actor }}
+          COMMIT: ${{ github.event.head_commit.message }}
+        run: |
+          curl \
+            -H "Title: Nuevo push en $REPO" \
+            -H "Priority: 5" \
+            -H "Tags: rocket,github" \
+            -d "Se realizó un push en la rama main del repositorio $REPO por $ACTOR - Commit: $COMMIT" \
+            https://ntfy.sh/devops-itla
